@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>UNDERWORLD · Flight Lab / 767 Physics Revamp</title>
+<style>
+:root{color-scheme:dark;--p:#0d171de8;--l:#b9d7d733;--t:#eaf0ed;--m:#9cb0b6;--a:#9fe2d5}*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0c161c;color:var(--t);font:13px Inter,Segoe UI,Arial,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}
+#ui{position:fixed;inset:0;pointer-events:none;text-shadow:0 1px 6px #000b}.p{background:var(--p);border:1px solid var(--l);border-radius:7px;backdrop-filter:blur(9px);box-shadow:0 8px 30px #0004}
+#brand{position:absolute;left:20px;top:18px;padding:10px 13px;letter-spacing:2px;font-size:11px}#brand b{color:var(--a)}
+#hud{position:absolute;left:20px;bottom:20px;display:flex;gap:20px;padding:11px 14px}.r label{display:block;color:var(--m);font-size:8px;letter-spacing:1.6px}.r b{font-size:25px;font-weight:350}.r small{font-size:9px;color:var(--m)}
+#tower{position:absolute;right:20px;top:18px;width:210px;padding:12px}.tt{font-size:9px;letter-spacing:1.4px;color:var(--m)}.row{margin-top:10px}.row span{display:flex;justify-content:space-between;font-size:10px}.bar{height:3px;background:#394950;margin-top:5px}.bar i{display:block;height:100%;background:var(--a)}
+#help{position:absolute;left:20px;top:76px;padding:9px 12px;font-size:10px;line-height:1.55;color:#c9d7d7}
+#eng{position:absolute;right:20px;bottom:20px;width:315px;padding:11px 13px;font:10px/1.45 ui-monospace,Consolas,monospace;white-space:pre;color:#cfe1e1}
+#tests{position:absolute;left:50%;top:18px;transform:translateX(-50%);padding:8px 12px;font:10px ui-monospace,Consolas,monospace}
+#msg{position:absolute;left:50%;top:72%;transform:translate(-50%,-50%);font-weight:650;font-size:18px;text-align:center}
+#cross{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px;opacity:.55}#cross:before,#cross:after{content:"";position:absolute;background:#eff}#cross:before{left:10px;width:2px;height:22px}#cross:after{top:10px;width:22px;height:2px}
+#mobile{display:none;position:fixed;left:0;right:0;bottom:0;height:155px;background:#10212ce8;border-top:1px solid #6d8b8b33;pointer-events:auto;padding:16px 20px;gap:22px}
+#stick{width:115px;height:115px;border:1px solid #7ca2a255;border-radius:50%;position:relative;touch-action:none;background:#17303a}#knob{position:absolute;width:38px;height:38px;border-radius:50%;background:#8cc8be66;border:1px solid #b7e6dd;left:38px;top:38px}
+#mright{flex:1}input{width:100%;accent-color:#9fe2d5}button{background:#18313a;color:#eaf0ed;border:1px solid #77929255;border-radius:5px;padding:8px 11px}
+@media(max-width:760px){#mobile{display:flex}#hud{bottom:165px;left:8px;gap:10px}.r b{font-size:18px}#eng{display:none}#help{display:none}#tower{right:8px;width:150px}#brand{left:8px}.r:nth-child(n+4){display:none}}
+</style></head><body>
+<canvas id="c"></canvas><div id="ui">
+<div id="brand" class="p"><b>UNDERWORLD</b> · FLIGHT LAB / 767-200ER</div>
+<div id="help" class="p">W/S elevator · A/D aileron/spoiler · Q/E rudder · Shift/Ctrl throttle · X/Z trim · C camera · drag orbit · wheel zoom · R reset · B rebuild · P pause · T ¼ time · F3 engineering</div>
+<div id="hud" class="p"><div class="r"><label>IAS</label><b id="ias">0</b><small> KT</small></div><div class="r"><label>TAS</label><b id="tas">0</b><small> KT</small></div><div class="r"><label>ALT</label><b id="alt">0</b><small> M</small></div><div class="r"><label>MACH</label><b id="mach">0.00</b></div><div class="r"><label>G</label><b id="ng">1.0</b></div><div class="r"><label>THR</label><b id="thr">60</b><small>%</small></div></div>
+<div id="tower" class="p"><div class="tt">CONNECTED TOWER GEOMETRY</div><div class="row"><span><b>NORTH</b><em id="nPct">100%</em></span><div class="bar"><i id="nBar"></i></div></div><div class="row"><span><b>SOUTH</b><em id="sPct">100%</em></span><div class="bar"><i id="sBar"></i></div></div></div>
+<div id="tests" class="p">SELF TESTS · <span id="testText">RUNNING</span></div><div id="eng" class="p"></div><div id="cross"></div><div id="msg"></div></div>
+<div id="mobile"><div id="stick"><div id="knob"></div></div><div id="mright">THROTTLE <span id="mthr">60%</span><input id="mt" type="range" min="0" max="100" value="60"><button id="mv">CAMERA</button></div></div>
+<script>
+"use strict";
+(()=>{
